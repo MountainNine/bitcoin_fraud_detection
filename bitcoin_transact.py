@@ -1,8 +1,17 @@
 import pandas as pd
 import json
 
-with open('D:\\download\coin\coin1.json', 'r') as file_data:
-    line = file_data.readline()
-    data = json.loads(line)
+sum_nTx = 0
+for i in range(1,47):
+    file_name = "D:\\download\coin\coin{}.json".format(i)
+    with open(file_name, 'r') as file_data:
+        line = file_data.readline()
+        while line:
+            data = json.loads(line)
+            sum_nTx += int(data['nTx'])
+            line = file_data.readline()
 
-print(data['nTx'])
+        file_data.close()
+        print(sum_nTx)
+
+# 9222178 transactions
