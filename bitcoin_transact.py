@@ -48,6 +48,19 @@ for i in range(1, 47):
 df_transaction = pd.DataFrame({'medianTime': median_list, 'nTx': nTx})
 df_transaction.to_csv('./transaction.csv', sep=',', na_rep='NaN')
 
+# ====================================================================
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import datetime
+
+data = pd.read_csv("transaction.csv")
+x = data.get('medianTime')
+x = pd.to_datetime(x,unit='s')
+y = data.get('nTx')
+plt.bar(x, y, width=0.01)
+plt.show()
+
 # 9222178 transactions
 # 10541781 addresses
 # 유저 산점도 (코인 수, 거래 수를 축으로)
