@@ -94,6 +94,17 @@ def group_user():
     df_new = grouped.agg(['count', 'sum'])
     df_new['value'].to_csv('./users_new.csv', sep=',', na_rep='NaN')
 
+def visualize_user():
+    import pandas as pd
+    import matplotlib.pyplot as plt
+
+    data = pd.read_csv("users_new.csv")
+
+    x = data.get('count')
+    y = data.get('sum')
+    plt.scatter(x,y,s=1)
+    plt.show()
+
 # 9222178 transactions
 # 10541781 addresses
 # 유저 산점도 (코인 수, 거래 수를 축으로)
