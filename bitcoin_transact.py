@@ -59,10 +59,10 @@ def show_transaction():
 
 
 def save_user_data():
-    import pandas as pd
     import json
+    import pandas as pd
 
-    df = pd.read_csv("address.csv")
+    list_address = []
 
     for i in range(1, 47):
         file_name = "D:\\download\coin\coin{}.json".format(i)
@@ -73,15 +73,26 @@ def save_user_data():
                 for tx in data['tx']:
                     for vout in tx['vout']:
                         if vout['scriptPubKey']['type'] not in ('nulldata', 'nonstandard'):
-                            address_row = df.loc[df['address'].values == vout['scriptPubKey']['addresses']]
-                            address_row['transaction'] += 1
-                            address_row['value'] += vout['value']
-                            df.loc[df['address'].values == vout['scriptPubKey']['addresses']] = address_row
-                print("line clear")
+                            list_address.append([vout['scriptPubKey']['addresses'], vout['value']])
                 line = file_data.readline()
 
             file_data.close()
             print("coin{} Clear.".format(i))
+
+    list_address_new = list(zip(map(lambda x: x[0][0], list_address), map(lambda x: x[1], list_address)))
+    addresses = list(map(lambda x: x[0], list_address_new))
+    values = list(map(lambda x: x[1], list_address_new))
+    df_new = pd.DataFrame({'address': addresses, 'value': values})
+    df_new.to_csv('./users.csv', sep=',', na_rep='NaN')
+
+
+def group_user():
+    import pandas as pd
+
+    df = pd.read_csv("users.csv")
+    grouped = df.groupby("address")
+    df_new = grouped.agg(['count', 'sum'])
+    df_new['value'].to_csv('./users_new.csv', sep=',', na_rep='NaN')
 
 # 9222178 transactions
 # 10541781 addresses
