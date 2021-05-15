@@ -94,6 +94,7 @@ def group_user():
     df_new = grouped.agg(['count', 'sum'])
     df_new['value'].to_csv('./users_new.csv', sep=',', na_rep='NaN')
 
+
 def visualize_user():
     import pandas as pd
     import matplotlib.pyplot as plt
@@ -102,8 +103,24 @@ def visualize_user():
 
     x = data.get('count')
     y = data.get('sum')
-    plt.scatter(x,y,s=1)
+    plt.scatter(x, y, s=1)
     plt.show()
+
+def get_abuse_address():
+    import pandas as pd
+    from bs4 import BeautifulSoup
+    import requests
+    import time
+
+    abuse_addresses = []
+
+    for i in range(1,2248):
+        page = requests.get("https://www.bitcoinabuse.com/reports?page={}".format(i))
+        soup = BeautifulSoup(page.content, "html.parser")
+        for s in soup.select("div.col-xl-4 a"):
+            abuse_addresses.append(s.contents[0])
+        print("{} passed.".format(i))
+        time.sleep(1)
 
 # 9222178 transactions
 # 10541781 addresses
