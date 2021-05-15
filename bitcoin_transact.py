@@ -98,12 +98,15 @@ def group_user():
 def visualize_user():
     import pandas as pd
     import matplotlib.pyplot as plt
+    import numpy as np
 
-    data = pd.read_csv("users_new.csv")
+    data = pd.read_csv("users_new_2.csv")
+    sub_data = data[data['is_fraud'] == 1]
 
-    x = data.get('count')
-    y = data.get('sum')
-    plt.scatter(x, y, s=1)
+    x = sub_data.get('count')
+    y = sub_data.get('sum')
+    colors = np.where(data['is_fraud'] == 1, 'r', 'b')
+    plt.scatter(x, y, s=1, c='r')
     plt.show()
 
 
