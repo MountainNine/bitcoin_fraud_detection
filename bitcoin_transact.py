@@ -106,21 +106,29 @@ def visualize_user():
     plt.scatter(x, y, s=1)
     plt.show()
 
+
 def get_abuse_address():
     import pandas as pd
     from bs4 import BeautifulSoup
     import requests
     import time
+    import numpy as np
 
-    abuse_addresses = []
+    abuse_addresses = set()
 
-    for i in range(1,2248):
+    for i in range(1, 2248):
         page = requests.get("https://www.bitcoinabuse.com/reports?page={}".format(i))
         soup = BeautifulSoup(page.content, "html.parser")
         for s in soup.select("div.col-xl-4 a"):
             abuse_addresses.append(s.contents[0])
         print("{} passed.".format(i))
         time.sleep(1)
+
+    df = pd.DataFrame(abuse_addresses)
+    df_address = pd.read_csv('users_new.csv', index_col=False)
+    common_address = pd.merge(df, df_address, how='inner', left_on=0, right_on='address')
+    df_address['is_fraud'] = np.where(df_address['address'].isin(common_address['address']), 1, 0)
+    df_address.to_csv('users_new_2.csv', index=None)
 
 # 9222178 transactions
 # 10541781 addresses
