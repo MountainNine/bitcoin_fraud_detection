@@ -103,10 +103,12 @@ def visualize_user():
     data = pd.read_csv("users_new_2.csv")
     sub_data = data[data['is_fraud'] == 1]
 
-    x = sub_data.get('count')
-    y = sub_data.get('sum')
+    x = data.get('count')
+    y = data.get('sum')
     colors = np.where(data['is_fraud'] == 1, 'r', 'b')
-    plt.scatter(x, y, s=1, c='r')
+    plt.scatter(x, y, s=9)
+    plt.yscale("log")
+    plt.xscale("log")
     plt.show()
 
 
@@ -133,6 +135,34 @@ def get_abuse_address():
     df_address['is_fraud'] = np.where(df_address['address'].isin(common_address['address']), 1, 0)
     df_address.to_csv('users_new_2.csv', index=None)
 
+def kmeans_cluster():
+    from sklearn.cluster import KMeans
+    import matplotlib.pyplot as plt
+    import pandas as pd
+    import numpy as np
+    import seaborn as sns
+
+    df= pd.read_csv('users_new_3.csv', index_col=False)
+    df['is_suspicious'] = np.where((df['count'] > 20000) | (df['sum'] > 1000000), 1, 0)
+    sse = []
+    sub_df = df[df['is_suspicious'] == 0]
+    list_km = pd.DataFrame(map(list, zip(sub_df['count'], sub_df['mean'])))
+
+    for i in range(1,11):
+        km = KMeans(n_clusters=i)
+        pred = km.fit_predict(list_km)
+        sse.append(km.inertia_)
+        print("{} Clear".format(i))
+
+    plt.plot(range(1,11), sse, marker='o')
+    plt.show()
+
+    result = list_km.copy()
+    result["cluster"] = pred
+
+    sns.scatterplot(x=0, y=1, hue="cluster", data=result, palette="Set2")
+
+    df.to_csv('users_new_3.csv', index=None)
 # 9222178 transactions
 # 10541781 addresses
 # 유저 산점도 (코인 수, 거래 수를 축으로)
