@@ -91,7 +91,7 @@ def group_user():
 
     df = pd.read_csv("users.csv")
     grouped = df.groupby("address")
-    df_new = grouped.agg(['count', 'sum'])
+    df_new = grouped.agg(['count', 'sum', 'std'])
     df_new['value'].to_csv('./users_new.csv', sep=',', na_rep='NaN')
 
 
@@ -102,11 +102,15 @@ def visualize_user():
 
     data = pd.read_csv("users_new_2.csv")
     sub_data = data[data['is_fraud'] == 1]
+    sub_data_2 = data[data['is_fraud'] == 0]
 
-    x = data.get('count')
-    y = data.get('sum')
+    x = sub_data_2.get('count')
+    y = sub_data_2.get('sum')
+    x2 = sub_data.get('count')
+    y2 = sub_data.get('sum')
     colors = np.where(data['is_fraud'] == 1, 'r', 'b')
     plt.scatter(x, y, s=9)
+    plt.scatter(x2, y2, s=9)
     plt.yscale("log")
     plt.xscale("log")
     plt.show()
@@ -135,34 +139,29 @@ def get_abuse_address():
     df_address['is_fraud'] = np.where(df_address['address'].isin(common_address['address']), 1, 0)
     df_address.to_csv('users_new_2.csv', index=None)
 
-def kmeans_cluster():
+
+def cluster():
     from sklearn.cluster import KMeans
     import matplotlib.pyplot as plt
     import pandas as pd
     import numpy as np
-    import seaborn as sns
+    import time
 
-    df= pd.read_csv('users_new_3.csv', index_col=False)
-    df['is_suspicious'] = np.where((df['count'] > 20000) | (df['sum'] > 1000000), 1, 0)
-    sse = []
-    sub_df = df[df['is_suspicious'] == 0]
-    list_km = pd.DataFrame(map(list, zip(sub_df['count'], sub_df['mean'])))
+    df = pd.read_csv('users_new_3.csv', index_col=False)
+    list_km = pd.DataFrame(map(list, zip(df['count'], df['sum'])))
 
-    for i in range(1,11):
-        km = KMeans(n_clusters=i)
-        pred = km.fit_predict(list_km)
-        sse.append(km.inertia_)
-        print("{} Clear".format(i))
+    km = KMeans(n_clusters=7).fit(list_km)
+    pred = km.labels_
 
-    plt.plot(range(1,11), sse, marker='o')
+    plt.scatter(df['count'], df['sum'], s=9, c=pred)
+    plt.xscale('log')
+    plt.yscale('log')
     plt.show()
 
-    result = list_km.copy()
-    result["cluster"] = pred
+    df['is_suspicious'] = pred
 
-    sns.scatterplot(x=0, y=1, hue="cluster", data=result, palette="Set2")
+    df.to_csv('users_new_3.csv', index=False)
 
-    df.to_csv('users_new_3.csv', index=None)
 # 9222178 transactions
 # 10541781 addresses
 # 유저 산점도 (코인 수, 거래 수를 축으로)
