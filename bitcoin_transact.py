@@ -51,10 +51,10 @@ def save_transaction():
 
 def show_transaction():
     data = pd.read_csv("transaction.csv")
-    x = data.get('medianTime')
-    x = pd.to_datetime(x, unit='s')
-    y = data.get('nTx')
-    plt.bar(x, y, width=0.01)
+    data['medianTime'] = pd.to_datetime(data['medianTime'], unit='s')
+    df = data.groupby(by=data['medianTime'].dt.date).sum()
+    y = df.get('nTx')
+    plt.bar(df.index, y)
     plt.show()
 
 
@@ -140,8 +140,8 @@ def get_abuse_address():
     df_address.to_csv('users_new_2.csv', index=None)
 
 
-def cluster():
-    from sklearn.cluster import KMeans
+def dbscan():
+    from sklearn.cluster import DBSCAN
     import matplotlib.pyplot as plt
     import pandas as pd
     import numpy as np
@@ -150,15 +150,14 @@ def cluster():
     df = pd.read_csv('users_new_3.csv', index_col=False)
     list_km = pd.DataFrame(map(list, zip(df['count'], df['sum'])))
 
-    km = KMeans(n_clusters=7).fit(list_km)
-    pred = km.labels_
+    dbscan = DBSCAN().fit_predict(list_km)
 
-    plt.scatter(df['count'], df['sum'], s=9, c=pred)
+    plt.scatter(list_km[0], list_km[1], s=9, c=dbscan)
     plt.xscale('log')
     plt.yscale('log')
     plt.show()
 
-    df['is_suspicious'] = pred
+    df['is_suspicious'] = dbscan
 
     df.to_csv('users_new_3.csv', index=False)
 
