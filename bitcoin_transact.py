@@ -140,26 +140,22 @@ def get_abuse_address():
     df_address.to_csv('users_new_2.csv', index=None)
 
 
-def dbscan():
-    from sklearn.cluster import DBSCAN
+def gaussian_mixture():
+    from sklearn.mixture import GaussianMixture
     import matplotlib.pyplot as plt
     import pandas as pd
     import numpy as np
     import time
 
     df = pd.read_csv('users_new_3.csv', index_col=False)
-    list_km = pd.DataFrame(map(list, zip(df['count'], df['sum'])))
+    list_gm = pd.DataFrame(map(list, zip(df['count'], df['sum'])))
 
-    dbscan = DBSCAN().fit_predict(list_km)
+    gm = GaussianMixture(n_components=9, random_state=0).fit_predict(list_gm)
 
-    plt.scatter(list_km[0], list_km[1], s=9, c=dbscan)
+    plt.scatter(list_gm[0], list_gm[1], s=9, c=gm)
     plt.xscale('log')
     plt.yscale('log')
     plt.show()
-
-    df['is_suspicious'] = dbscan
-
-    df.to_csv('users_new_3.csv', index=False)
 
 # 9222178 transactions
 # 10541781 addresses
